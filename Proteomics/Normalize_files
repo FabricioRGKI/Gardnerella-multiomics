@@ -82,8 +82,8 @@ proteomics_analysis <- function(
                        names(normalized_df), value = TRUE)
   
   # Make sure we exclude any columns that might accidentally match both patterns
-  # For example, if control_condition is "Gv" and mix_condition is "Lc2Gv",
-  # we need to exclude "Lc2Gv" columns from control_cols
+  # For example, if control_condition is "Gv" and mix_condition is "LcGv",
+  # we need to exclude "LcGv" columns from control_cols
   control_cols <- control_cols[!grepl(mix_condition, control_cols)]
   
   mix_cols <- grep(paste0("Abundance:.*", mix_condition, "_R[123]"), 
@@ -221,7 +221,7 @@ proteomics_analysis <- function(
 # Work 1: LcGv vs Gv for Gardnerella vaginalis
 results1 <- proteomics_analysis(
   file_path = "proteins_file01.csv",
-  mix_condition = "Lc2Gv",
+  mix_condition = "LcGv",
   control_condition = "Gv",
   species_name = "Gardnerella_vaginalis",
   output_prefix = "LcGv_vs_Gv"
@@ -230,8 +230,8 @@ results1 <- proteomics_analysis(
 # Work 2: LcGv vs Lc for Lactobacillus crispatus
 results2 <- proteomics_analysis(
   file_path = "proteins_file02.csv",
-  mix_condition = "Lc2Gv",
-  control_condition = "Lc2",
+  mix_condition = "LcGv",
+  control_condition = "Lc",
   species_name = "Lactobacillus_crispatus",
   output_prefix = "LcGv_vs_Lc2"
 )
