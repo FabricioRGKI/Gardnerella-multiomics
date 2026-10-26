@@ -1,0 +1,237 @@
+# Load required libraries
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(tibble)
+
+
+# Define the main analysis function
+proteomics_analysis <- function(
+    file_path,
+    mix_condition,      # e.g., "LcGv"
+    control_condition,  # e.g., "Gv" or "Lc"
+    species_name,       # e.g., "Gardnerella vaginalis" or "Lactobacillus crispatus"
+    output_prefix = "proteomics_analysis"  # Optional: prefix for output files
+) {
+  
+  # Read the CSV file
+  df <- read.csv(file_path, stringsAsFactors = FALSE, check.names = FALSE)
+  
+  # Step 1: Filter columns and rows
+  filtered_df <- df %>%
+    # Select all requested columns plus Description and abundance columns
+    select(
+      Description,
+      `Sum PEP Score`, `Coverage [%]`, `# Peptides`, `# PSMs`, `# Unique Peptides`,
+      `# AAs`, `MW [kDa]`, `calc. pI`, `Score MS Amanda 2.0: MS Amanda 2.0`,
+      `# Peptides (by Search Engine): MS Amanda 2.0`, `Biological Process`,
+      `Cellular Component`, `Molecular Function`, `Pfam IDs`, `Entrez Gene ID`,
+      `Gene ID`, `Gene Symbol`,
+      matches(paste0("^Abundance:.*(", mix_condition, "|", control_condition, ")"))
+    ) %>%
+    # Filter rows containing the specified species in Description
+    filter(grepl(species_name, Description, ignore.case = TRUE))
+  
+  # Step 2: Remove rows with less than 2 unique peptides
+  filtered_df <- filtered_df %>%
+    filter(`# Unique Peptides` >= 2)
+  
+  # Step 3: Remove rows where all abundance columns are NA
+  abundance_cols <- grep("^Abundance:", names(filtered_df), value = TRUE)
+  filtered_df <- filtered_df %>%
+    filter(rowSums(!is.na(select(., all_of(abundance_cols)))) > 0)
+  
+  # Step 4: Replace remaining NAs with half the minimum value in each row
+  replace_na_with_half_min <- function(x) {
+    row_min <- apply(x, 1, function(row) min(row, na.rm = TRUE))
+    replacement <- row_min / 2
+    
+    for(i in 1:nrow(x)) {
+      na_indices <- is.na(x[i, ])
+      x[i, na_indices] <- replacement[i]
+    }
+    return(x)
+  }
+  
+  # Apply NA replacement only to abundance columns
+  abundance_data <- filtered_df %>%
+    select(all_of(abundance_cols)) %>%
+    replace_na_with_half_min()
+  
+  # Combine back with non-abundance columns
+  non_abundance_cols <- setdiff(names(filtered_df), abundance_cols)
+  filtered_df <- cbind(
+    filtered_df %>% select(all_of(non_abundance_cols)),
+    abundance_data
+  )
+  
+  # Step 5: Normalize each sample by column sum
+  normalized_abundance <- filtered_df %>%
+    select(all_of(abundance_cols)) %>%
+    mutate(across(everything(), ~ . / sum(., na.rm = TRUE)))
+  
+  # Combine with original data
+  normalized_df <- cbind(
+    filtered_df %>% select(all_of(non_abundance_cols)),
+    normalized_abundance
+  )
+  
+  # Step 6: Calculate average per triplicate conditions - FIXED PATTERN MATCHING
+  # Identify control and mix condition columns - MORE SPECIFIC PATTERNS
+  control_cols <- grep(paste0("Abundance:.*", control_condition, "_R[123]"), 
+                       names(normalized_df), value = TRUE)
+  
+  # Make sure we exclude any columns that might accidentally match both patterns
+  # For example, if control_condition is "Gv" and mix_condition is "Lc2Gv",
+  # we need to exclude "Lc2Gv" columns from control_cols
+  control_cols <- control_cols[!grepl(mix_condition, control_cols)]
+  
+  mix_cols <- grep(paste0("Abundance:.*", mix_condition, "_R[123]"), 
+                   names(normalized_df), value = TRUE)
+  
+  # Debug: Check if columns are being found correctly
+  cat("Control columns found:", paste(control_cols, collapse = ", "), "\n")
+  cat("Mix condition columns found:", paste(mix_cols, collapse = ", "), "\n")
+  cat("Number of control columns:", length(control_cols), "\n")
+  cat("Number of mix columns:", length(mix_cols), "\n")
+  
+  # Verify we have the right number of replicates (should be 3 each)
+  if(length(control_cols) != 3) {
+    warning(paste("Expected 3 control replicates but found", length(control_cols), 
+                  "Check your control_condition parameter."))
+  }
+  if(length(mix_cols) != 3) {
+    warning(paste("Expected 3 mix condition replicates but found", length(mix_cols), 
+                  "Check your mix_condition parameter."))
+  }
+  
+  # Calculate means - USING ONLY THE CORRECT COLUMNS
+  result_df <- normalized_df
+  result_df$control_mean <- rowMeans(result_df[, control_cols, drop = FALSE], na.rm = TRUE)
+  result_df$mix_mean <- rowMeans(result_df[, mix_cols, drop = FALSE], na.rm = TRUE)
+  
+  # Step 7: Calculate ratio mix / control
+  # Step 8: Transform to Log2FC
+  result_df <- result_df %>%
+    mutate(
+      ratio = mix_mean / control_mean,
+      Log2FC = log2(ratio)
+    )
+  
+  # Step 9: Perform t-test for each protein
+  perform_t_test <- function(row) {
+    control_values <- as.numeric(row[control_cols])
+    mix_values <- as.numeric(row[mix_cols])
+    
+    # Check if we have enough values for t-test
+    if(length(na.omit(control_values)) < 2 | length(na.omit(mix_values)) < 2) {
+      return(NA)
+    }
+    
+    tryCatch({
+      t.test(mix_values, control_values, var.equal = FALSE)$p.value
+    }, error = function(e) {
+      return(NA)
+    })
+  }
+  
+  # Apply t-test to each row
+  p_values <- apply(normalized_df %>% select(all_of(c(control_cols, mix_cols))), 
+                    1, perform_t_test)
+  
+  result_df$p_value <- p_values
+  
+  # Step 10: Calculate adjusted p-value (Benjamini-Hochberg)
+  result_df <- result_df %>%
+    mutate(adj_p_value = p.adjust(p_value, method = "BH"))
+  
+  # Create final result with relevant columns
+  final_result <- result_df %>%
+    select(
+      Description,
+      `Sum PEP Score`, `Coverage [%]`, `# Peptides`, `# PSMs`, `# Unique Peptides`,
+      `# AAs`, `MW [kDa]`, `calc. pI`, `Score MS Amanda 2.0: MS Amanda 2.0`,
+      `# Peptides (by Search Engine): MS Amanda 2.0`, `Biological Process`,
+      `Cellular Component`, `Molecular Function`, `Pfam IDs`, `Entrez Gene ID`,
+      `Gene ID`, `Gene Symbol`,
+      all_of(control_cols),
+      all_of(mix_cols),
+      control_mean,
+      mix_mean,
+      ratio,
+      Log2FC,
+      p_value,
+      adj_p_value
+    )
+  
+  # Rename abundance columns
+  names(final_result) <- ifelse(
+    grepl("^Abundance:", names(final_result)),
+    paste0("norm_abund_", gsub("^Abundance: [^:]*: ", "", names(final_result))),
+    names(final_result)
+  )
+  
+  # Add significance column
+  final_result <- final_result %>%
+    mutate(is_significant = ifelse(adj_p_value < 0.05, "yes", "no"))
+  
+  # Create filtered dataset for significant results with |Log2FC| > 1
+  significant_results <- final_result %>%
+    filter(adj_p_value < 0.05 & (Log2FC > 1 | Log2FC < -1))
+  
+  # Generate output filenames
+  full_output_file <- paste0(output_prefix, "_", mix_condition, "_vs_", control_condition, "_full.csv")
+  significant_output_file <- paste0(output_prefix, "_", mix_condition, "_vs_", control_condition, "_significant.csv")
+  
+  # Print summary
+  cat("\n=== ANALYSIS SUMMARY ===\n")
+  cat("Species analyzed:", species_name, "\n")
+  cat("Comparison:", mix_condition, "vs", control_condition, "\n")
+  cat("Number of proteins analyzed:", nrow(final_result), "\n")
+  cat("Number of significant proteins (adj p < 0.05):", 
+      sum(final_result$adj_p_value < 0.05, na.rm = TRUE), "\n")
+  cat("Number of significant proteins with |Log2FC| > 1:", nrow(significant_results), "\n")
+  
+  # Additional summary statistics
+  cat("\nSummary Statistics:\n")
+  cat("Mean Log2FC:", mean(final_result$Log2FC, na.rm = TRUE), "\n")
+  cat("SD Log2FC:", sd(final_result$Log2FC, na.rm = TRUE), "\n")
+  cat("Number of upregulated (Log2FC > 1):", 
+      sum(final_result$Log2FC > 1, na.rm = TRUE), "\n")
+  cat("Number of downregulated (Log2FC < -1):", 
+      sum(final_result$Log2FC < -1, na.rm = TRUE), "\n")
+  
+  # Save results to CSV
+  write.csv(final_result, full_output_file, row.names = FALSE)
+  write.csv(significant_results, significant_output_file, row.names = FALSE)
+  
+  cat("\nOutput files saved:\n")
+  cat("Full results:", full_output_file, "\n")
+  cat("Significant results:", significant_output_file, "\n")
+  
+  # Return both datasets as a list
+  return(list(
+    full_results = final_result,
+    significant_results = significant_results
+  ))
+}
+
+# ===== USAGE EXAMPLES =====
+
+# Work 1: LcGv vs Gv for Gardnerella vaginalis
+results1 <- proteomics_analysis(
+  file_path = "proteins_file01.csv",
+  mix_condition = "Lc2Gv",
+  control_condition = "Gv",
+  species_name = "Gardnerella_vaginalis",
+  output_prefix = "LcGv_vs_Gv"
+)
+
+# Work 2: LcGv vs Lc for Lactobacillus crispatus
+results2 <- proteomics_analysis(
+  file_path = "proteins_file02.csv",
+  mix_condition = "Lc2Gv",
+  control_condition = "Lc2",
+  species_name = "Lactobacillus_crispatus",
+  output_prefix = "LcGv_vs_Lc2"
+)
