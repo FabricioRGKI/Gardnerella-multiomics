@@ -45,3 +45,18 @@ Output: a timestamped SVG Venn diagram with the top 3 proteins by absolute Log2F
 Requirements: R with dplyr, stringr, ggplot2, ggvenn, openxlsx, and svglite.
 
 Note: update the setwd() path and file names in the usage examples before running.
+
+
+_______
+
+STRING Rank Score Input Preparation
+
+This short R script prepares a two-column input file for STRING enrichment analysis. It reads a proteomics CSV, computes a combined rank score for each protein as -log10(p_value) × sign(Log2FC) (so upregulated proteins get positive scores and downregulated proteins negative scores, weighted by significance), extracts the locus_tag and rank_score columns, and writes them to string_rank_input.csv.
+
+Input: a CSV with locus_tag, p_value, and Log2FC columns.
+
+Output: string_rank_input.csv — a two-column file (locus_tag, rank_score) suitable for STRING's ranked-list input.
+
+Requirements: base R only.
+
+Note: update the setwd() path and input file name before running.
