@@ -531,7 +531,7 @@ setwd("path/where/your/files/are")
 getwd()
 
 #LcBv vs Bv upregulation comparisons
-result <- run_venn_analysis_4way_label(
+result <- run_venn_analysis_4way(
   csv_files = c(
     "LcLi_vs_Li_sig_up.csv",
     "LcGv_vs_Gv_sig_up.csv",
@@ -542,7 +542,7 @@ result <- run_venn_analysis_4way_label(
 )
 
 #LcBv vs Bv downregulation comparisons
-result <- run_venn_analysis_4way_label(
+result <- run_venn_analysis_4way(
   csv_files = c(
     "LcLi_vs_Li_sig_down.csv",
     "LcGv_vs_Gv_sig_down.csv",
