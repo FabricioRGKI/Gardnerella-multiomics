@@ -44,3 +44,34 @@ R with `ggplot2`, `dplyr`, `readr`, and `patchwork`.
 ## Note
 
 The condition palette is hardcoded for the eight Lc/Li/Fv/Pb × up/down combinations — adjust `cond_colors` and the `cond_key` factor levels if your conditions differ.
+
+___
+
+# Four-Way UpSet Plot Analysis (UP and DOWN Regulated Proteins) R Script
+
+This R script builds UpSet plots from a single combined CSV file, split into two separate figures: one for **upregulated** proteins and one for **downregulated** proteins. Each plot is a hand-assembled UpSet diagram showing intersection sizes, a membership matrix, and per-set sizes.
+
+Key features:
+- Intersections are labeled with the **top 3 modules** by number of features (ties broken by maximum absolute Log2FC). Fully shared intersections show all modules.
+- Each intersection bar is colored by the average color of the sets it contains.
+- The **DOWN-regulated plot is flipped**: intersection bars grow downward from the matrix as a visual metaphor.
+- Both plots are exported as PDFs, and an Excel workbook is produced with patterns, membership, shared-all, shared-by-≥2, and per-set unique feature sheets for each direction.
+
+## Input
+
+- A single combined CSV file with columns: `locus_tag`, `Log2FC`, `condition`, `regulation`, `modules`. Condition values must be `Gv_LcGv`, `Gv_LiGv`, `Gv_FvGv`, `Gv_PbGv` (mapped to Lc, Li, Fv, Pb).
+
+## Output
+
+- `UpSet_UP_<timestamp>.pdf` — upregulated proteins
+- `UpSet_DOWN_<timestamp>.pdf` — downregulated proteins
+- `UpSet_<timestamp>.xlsx` — workbook with sheets: `Patterns_UP/DOWN`, `Membership_UP/DOWN`, `Shared_All_UP/DOWN`, `Shared_2plus_UP/DOWN`, `Unique_<set>_UP/DOWN`
+
+## Requirements
+
+R with `dplyr`, `ggplot2`, `openxlsx`, and `cowplot`.
+
+## Note
+
+Function parameters (`top_n`, `width`, `height`, `base_size`, `label_size`, `count_size`, `title_size`) control layout and labeling. Update `csv_files` in the call at the bottom to point to your combined input file.
+
