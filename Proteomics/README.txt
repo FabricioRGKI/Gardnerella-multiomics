@@ -28,3 +28,20 @@ Output: intermediate _desc_filtered.csv and _labeled.csv files per input, plus a
 Requirements: R with dplyr, tidyr, and stringr.
 
 Note: expects p_value and Log2FC columns (with fallback name detection). Change the setwd() path before running.
+
+
+_______
+
+Four-Way Venn Overlap Analysis
+
+This R script compares four proteomics CSV datasets using the locus_tag column. It generates a four-way Venn diagram and computes every possible overlap: 4-way, all 3-way combinations, all 2-way combinations, and unique entries per dataset.
+
+Results are written to an Excel workbook containing an overlap table (locus tag, protein, label, per-dataset Log2FC values and counts), a summary sheet of overlap statistics, and one sheet per dataset listing its unique locus tags in full.
+
+Input: four CSV files, each requiring a locus_tag column (and optionally Log2FC and label_edit for annotations).
+
+Output: a timestamped SVG Venn diagram with the top 3 proteins by absolute Log2FC shown under each set name and a timestamped .xlsx workbook.
+
+Requirements: R with dplyr, stringr, ggplot2, ggvenn, openxlsx, and svglite.
+
+Note: update the setwd() path and file names in the usage examples before running.
