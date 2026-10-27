@@ -60,3 +60,18 @@ Output: string_rank_input.csv — a two-column file (locus_tag, rank_score) suit
 Requirements: base R only.
 
 Note: update the setwd() path and input file name before running.
+
+
+________
+
+Bubble Plots for Differential Protein Abundance
+
+This R script generates a bubble plot from a labeled proteomics results CSV. It computes a combined significance score (-log10(adj_p_value) × |Log2FC|) and labels the top 20 proteins by that score. Points are colored by regulation direction (upregulated vs downregulated), sized by mean normalized protein abundance, and annotated with geom_text_repel.
+
+Input: a CSV containing Log2FC, adj_p_value, mix_mean, and label_edit columns.
+
+Output: an SVG bubble plot (6×6 in).
+
+Requirements: R with dplyr, ggplot2, and ggrepel.
+
+Note: the plot title is hardcoded for Fannyhessea vaginae in the LcFv mix — adjust the title, input filename, and output filename for other comparisons.
