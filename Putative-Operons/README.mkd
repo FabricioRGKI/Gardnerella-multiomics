@@ -1,4 +1,4 @@
-# Merge Modules and Regulated Proteins R script
+# Merge Modules and Regulated Proteins R Script
 
 This R script merges a modules (putative operons) assignment file with a regulated proteins file by matching the **last 5 digits** of the `locus_tag` (since the two files may use different locus tag formats). It performs an inner join on the shortened tag, keeps protein, label, Log2FC, adjusted p-value, module, and subpartition columns, and writes the results to an Excel workbook.
 
@@ -20,3 +20,27 @@ R with `readr`, `dplyr`, `writexl`, and `stringr`.
 ## Note
 
 Update the two input file paths at the top before running.
+
+___
+
+# Log2FC Bar Plot by Condition and Module R Script
+
+This R script creates a diverging bar plot of Log2FC values for regulated proteins, grouped by functional module. Conditions are parsed into short labels (Lc, Li, Fv, Pb) and split by up/down regulation, with one row per protein × condition so the same protein's conditions stay adjacent.
+
+The plot combines a main bar panel (colored by condition, faceted by regulation) with a left-side text strip showing each row's module assignment, aligned using `patchwork`. Row order is sorted by regulation → module → protein → condition.
+
+## Input
+
+- `Gv_regulated_modules_all.csv` with `condition`, `regulation`, `modules`, `protein`, and `Log2FC` columns.
+
+## Output
+
+- `plot3_bars_modules.pdf` (10×10 in).
+
+## Requirements
+
+R with `ggplot2`, `dplyr`, `readr`, and `patchwork`.
+
+## Note
+
+The condition palette is hardcoded for the eight Lc/Li/Fv/Pb × up/down combinations — adjust `cond_colors` and the `cond_key` factor levels if your conditions differ.
