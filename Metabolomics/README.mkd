@@ -1,4 +1,4 @@
-# Heatmap for Untargeted Metabolites
+# Heatmap for Untargeted Metabolites R Script
 
 This R script generates a clustered heatmap from an untargeted metabolomics intensity matrix. It applies a standard preprocessing pipeline before visualization:
 
@@ -28,7 +28,7 @@ The group color palette is hardcoded for 15 named sample groups. Update `group_c
 
 ___
 
-# PCoA with Overlaid Ellipses for Lc, Gv, and LcGv
+# PCoA with Overlaid Ellipses for Lc, Gv, and LcGv R Script
 
 This R script performs ordination analysis on a metabolite intensity matrix and produces a PCoA scatter plot with overlaid confidence ellipses. It preprocesses the data with zero replacement, log2 transformation, and Pareto scaling (column-wise), then computes a Manhattan distance matrix and runs classical multidimensional scaling (`cmdscale`) to obtain PCo1/PCo2 coordinates.
 
@@ -50,3 +50,28 @@ R with `ggplot2` and `svglite`.
 ## Note
 
 The group color palette is hardcoded for 15 named groups — update `group_colors` if your labels differ. Variance percentages are shown on the axis labels from the PCoA eigenvalues.
+
+___
+
+# Targeted Boxplot for a Single Metabolite R Script
+
+This R script generates a boxplot for a single metabolite across selected culture conditions, using technical replicate columns from a metabolomics matrix. Each condition is shown as a boxplot with its own fill color, overlaid with all individual data points as jittered black dots and a thin median bar.
+
+The script reshapes technical replicate columns (`<replicate>.<condition>.<tech_rep>`) to long format, filters to one metabolite by its `name` value, restricts to a user-defined set of conditions, and orders the x-axis with a custom condition sequence.
+
+## Input
+
+- `VaBaMet_matrix.csv` with a `name` column and technical replicate columns matching `##.XX.##` (e.g., `1.LcGv.1`).
+
+## Output
+
+- `MbC_single_metabolites.png` (8×6 in, 300 dpi)
+- `MbC_single_metabolites.svg`
+
+## Requirements
+
+R with `tidyverse` and `svglite`.
+
+## Note
+
+Three user-editable settings must be adjusted per run: `target_metabolite` (must match the `name` column exactly), `keep_conditions` (two pre-written variants for Pb vs. Gv coculture comparisons — keep the one you need), and `desired_order` (two variants, same logic). The output filenames are hardcoded for methyl-β-carboline and should be changed for other metabolites. Set the working directory at the top before running.
