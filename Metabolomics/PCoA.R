@@ -13,6 +13,9 @@
 #   5. Saves as PNG and SVG.
 #
 # =============================================================================
+rm(list = ls())
+setwd("your/working/path")
+getwd()
 
 library(ggplot2)
 library(svglite)
