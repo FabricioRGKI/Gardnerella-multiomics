@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Script: Targeted boxplots
-#          Input file should contain technical replicate columns (##.XX.##)
+# Input file should contain technical replicate columns (##.XX.##)
 # For single metabolites
 # Output: PNG and SVG files.
 # ----------------------------------------------------------------------
@@ -142,7 +142,7 @@ scale_fill_manual(values = condition_colors, na.value = "gray70") +
 labs(title = target_metabolite,
      x = "Condition", y = "Intensity") +
   
-  # ---------- Minimal journal style ----------
+  # ---------- Minimal style ----------
 theme_classic(base_size = 14) +
   theme(
     # Axis text: angled to avoid overlap
