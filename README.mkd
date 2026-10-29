@@ -1,0 +1,36 @@
+# Multi-omics uncover interactions in the vaginal microbiome and a type II secretion/Tad pilus system in *Gardnerella* species
+
+🌐 **Browse the interactive site:** https://fabriciorgki.github.io/Gardnerella-multiomics/
+
+This site hosts the interactive syntenic maps of the *Gardnerella* pangenome,
+together with the R scripts used to reproduce the analyses in this study.
+
+## About
+
+Long-read sequencing of clinical *Gardnerella* isolates revealed a pangenomic
+split between *G. vaginalis* and *G. piotii* that correlates with high- versus
+low-biofilm phenotypes, linked to clade-specific genomic islands and allelic
+variants. Integrating pangenome, proteome, 16S, and metabolome data across
+pairwise co-cultures of five key vaginal bacteria showed that *G. vaginalis* and
+*L. iners* act as dominant ecological drivers, and implicated a putative
+type II secretion/Tad pilus operon in interspecies interactions — an operon more
+abundant in BV samples than in healthy controls. Metabolomics further identified
+methyl-β-carboline and dipeptides that shape growth and biofilm formation of
+vaginal microbes (and inhibit multidrug-resistant pathogens), suggesting new
+strategies for managing polymicrobial infections.
+
+## Site structure
+
+| Folder | Contents |
+| --- | --- |
+| `Syntenic_Pangenome/` | Interactive syntenic map of the pangenome |
+| `Gene_maps/` | R scripts for gene mapping |
+| `Proteomics/` | R scripts for proteomic analyses |
+| `Putative-Operons/` | R scripts for putative operon analyses |
+| `Putative-Operons/pangenome_operons/` | Interactive pangenome operon viewer |
+| `Metabolomics/` | R scripts for metabolomic analyses |
+| `Growth_&_biofilm_assays/` | R scripts for growth and biofilm assays |
+
+Each script folder contains its own documentation describing inputs, outputs,
+and required R packages. Set the working directory and adjust file paths, group
+labels, and condition palettes at the top of each script before running.
