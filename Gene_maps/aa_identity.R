@@ -1,5 +1,8 @@
 # Pairwise Percent Identity Analysis for Orthologous Proteins
 # Across Bacterial Strains
+rm(list = ls())
+setwd("your/working/path")
+getwd()
 
 # Load required packages
 if (!require("BiocManager", quietly = TRUE))
