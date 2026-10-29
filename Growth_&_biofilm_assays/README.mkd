@@ -24,3 +24,29 @@ R with `ggplot2`, `dplyr`, `tidyr`, `stringr`, `readr`, `svglite`, and `broom`.
 ## Note
 
 Three user-editable settings must be adjusted: the file paths for the three experimental replicates, the `metabolite_to_control` mapping, and the working directory at the top. Growth curves are plotted in hours (raw time is divided by 3600). The script also saves per-experiment ribbons (± SD) rather than pooled across experiments.
+
+___
+
+# Biofilm Formation Analysis R Script
+
+This R script analyzes biofilm formation (OD values) across bacterial organisms, metabolite treatments (Sphingosine and Harmane), and concentrations, comparing each treatment against its matched control (DBM for Sphingosine, DM for Harmane).
+
+It reshapes wide-format OD data to long format, parses condition names into organism, treatment, concentration, and type, and produces a boxplot with overlaid jittered points, faceted by organism and colored by compound. It then runs two-tailed Wilcoxon rank-sum tests for each treatment–control pair, reporting medians, IQRs, median difference, Hodges–Lehmann estimate with 95% CI, U statistic, rank-biserial correlation, Cliff's delta, p-value, and significance stars.
+
+## Input
+
+- `joined_biofilm_ODs.csv` — wide-format OD measurements with one row per replicate and one column per condition, using column names like `<Organism>_<S|H>_<concentration>` (treatments) or `<Organism>_<DM|DBM>` (controls).
+
+## Output
+
+- `biofilm_boxplot.svg` — faceted boxplot with jittered points (5×8 in)
+- `biofilm_statistics.csv` — full statistical results per comparison
+- `biofilm_statistics_condensed.csv` — publication-style condensed table with formatted medians, Δ median [95% CI], effect sizes, and p-values
+
+## Requirements
+
+R with `tidyr`, `dplyr`, `ggplot2`, `ggpubr`, `broom`, `svglite`, and `effsize`.
+
+## Note
+
+Set the working directory and input filename at the top before running.
