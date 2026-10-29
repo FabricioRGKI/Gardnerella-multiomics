@@ -75,3 +75,27 @@ R with `tidyverse` and `svglite`.
 ## Note
 
 Three user-editable settings must be adjusted per run: `target_metabolite` (must match the `name` column exactly), `keep_conditions` (two pre-written variants for Pb vs. Gv coculture comparisons — keep the one you need), and `desired_order` (two variants, same logic). The output filenames are hardcoded for methyl-β-carboline and should be changed for other metabolites. Set the working directory at the top before running.
+
+___
+
+# Targeted Welch t-Tests for a Single Metabolite R Script
+
+This R script performs a predefined set of pairwise Welch t-tests (unequal variances, unpaired) on a single metabolite across selected culture conditions, applies Benjamini–Hochberg FDR correction across all tests, and exports a statistics source table as CSV.
+
+The script reshapes technical replicate columns (`<replicate>.<condition>.<tech_rep>`) to long format, filters to one metabolite by its `short name`, runs the user-defined comparisons, and reports per-comparison sample sizes, means, mean difference, t-statistic, degrees of freedom, raw and adjusted p-values, and significance stars (`***`, `**`, `*`, `ns`). Comparisons whose conditions are missing or whose test fails are retained with `NA` values and an explanatory `note`.
+
+## Input
+
+- `VaBaMet_matrix.csv` with `name` and `short name` columns and technical replicate columns matching `##.XX.##` (e.g., `1.LcGv.1`).
+
+## Output
+
+- `<metabolite>_targeted_stats_source.csv` — one row per comparison with full statistics and metadata.
+
+## Requirements
+
+R with `tidyverse`.
+
+## Note
+
+Three user-editable settings must be adjusted per run: `target_metabolite` (matched against `short name`), `comparisons` (two pre-written lists for Pb vs. Gv coculture comparisons), and the input file path. Set the working directory at the top before running.
