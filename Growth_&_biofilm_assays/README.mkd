@@ -1,0 +1,26 @@
+# Growth Curve and Inhibition Test Analysis R Script
+
+This R script analyzes bacterial growth curves and metabolite inhibition from plate-reader OD measurements across multiple experimental replicates. It parses well names into structured metadata (organism, metabolite, concentration, replicate, control), computes mean/SD growth curves, calculates area under the curve (AUC) per replicate, runs Welch t-tests comparing each treatment to its matched control, and quantifies percent inhibition with significance labels.
+
+A user-defined mapping links each metabolite to its control code (Sphingosine → DBM, Harmane → DM). The script produces faceted growth-curve plots (treatments vs. matched controls), an inhibition bar plot with significance stars and SEM error bars, and four CSV outputs (individual AUCs, statistical tests, raw inhibition, inhibition summary).
+
+## Input
+
+- Three experimental CSV files (e.g., `xp01.csv`, `xp02.csv`, `xp03.csv`) with a time column (`###s`), a temperature column, and measurement columns named either `<Organism>_<S|H><replicate>_<concentration>` (treatments) or `<Organism>_<DM|DBM><replicate>` (controls). Media-only (`M_*`) and well-name columns (`A1`, `H12`, …) are ignored.
+
+## Output
+
+- `growth_curves_faceted.svg` — faceted growth curves by organism and compound
+- `inhibition_plot.svg` — inhibition bar chart with SEM and significance
+- `auc_individual_values.csv` — per-replicate AUC, max OD, final OD
+- `statistical_test_results.csv` — t-test results per comparison
+- `inhibition_detailed.csv` — per-replicate inhibition values
+- `inhibition_summary.csv` — mean/SD/SEM inhibition per condition, with significance
+
+## Requirements
+
+R with `ggplot2`, `dplyr`, `tidyr`, `stringr`, `readr`, `svglite`, and `broom`.
+
+## Note
+
+Three user-editable settings must be adjusted: the file paths for the three experimental replicates, the `metabolite_to_control` mapping, and the working directory at the top. Growth curves are plotted in hours (raw time is divided by 3600). The script also saves per-experiment ribbons (± SD) rather than pooled across experiments.
