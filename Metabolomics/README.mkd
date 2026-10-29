@@ -25,3 +25,28 @@ R with `pheatmap`, `RColorBrewer`, and `svglite` (optional but recommended; `Cai
 ## Note
 
 The group color palette is hardcoded for 15 named sample groups. Update `group_colors` if your group labels differ. Set the working directory at the top before running.
+
+___
+
+# PCoA with Overlaid Ellipses for Lc, Gv, and LcGv
+
+This R script performs ordination analysis on a metabolite intensity matrix and produces a PCoA scatter plot with overlaid confidence ellipses. It preprocesses the data with zero replacement, log2 transformation, and Pareto scaling (column-wise), then computes a Manhattan distance matrix and runs classical multidimensional scaling (`cmdscale`) to obtain PCo1/PCo2 coordinates.
+
+Points are colored by sample group, shaped by biological replicate (1, 2, 3), and three 90% confidence ellipses are overlaid: one around all Lc-containing groups, one around all Gv-containing groups, and one around the specific LcGv group.
+
+## Input
+
+- `VaBaMet_matrix.csv` with a `short name` column for metabolite labels and intensity columns named `<replicate>.<group>` (e.g., `1.LcGv`, `2.Gv`).
+
+## Output
+
+- `VaBaMet_PCoA_manhattan.png` (6×6 in, 300 dpi)
+- `VaBaMet_PCoA_manhattan.svg`
+
+## Requirements
+
+R with `ggplot2` and `svglite`.
+
+## Note
+
+The group color palette is hardcoded for 15 named groups — update `group_colors` if your labels differ. Variance percentages are shown on the axis labels from the PCoA eigenvalues.
