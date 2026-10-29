@@ -1,0 +1,27 @@
+# Heatmap for Untargeted Metabolites
+
+This R script generates a clustered heatmap from an untargeted metabolomics intensity matrix. It applies a standard preprocessing pipeline before visualization:
+
+1. **Zero replacement** — zeros are replaced with half the row's minimum positive value.
+2. **Log2 transformation** of the intensities.
+3. **Pareto scaling** row-wise (mean-centre, divide by √SD).
+4. **Constant-row removal** — rows with zero variance after transformation are dropped.
+
+The heatmap uses hierarchical clustering (Euclidean distance, single linkage) on both rows and columns, a symmetric red–blue palette centred on zero, and a column annotation strip that maps each sample to its group (e.g., Lc, LcGv, GvPb) using a fixed custom color scheme.
+
+## Input
+
+- `VaBaMet_matrix.csv` with a `short name` (or `name`) column for feature labels and intensity columns named `<index>.<group>` (e.g., `1.Lc`, `2.LcGv`).
+
+## Output
+
+- `VaBaMet_heatmap.png` (7×9 in, 300 dpi)
+- `VaBaMet_heatmap.svg` (Cairo if available, otherwise `svglite` fallback)
+
+## Requirements
+
+R with `pheatmap`, `RColorBrewer`, and `svglite` (optional but recommended; `Cairo` also supported for SVG output).
+
+## Note
+
+The group color palette is hardcoded for 15 named sample groups. Update `group_colors` if your group labels differ. Set the working directory at the top before running.
