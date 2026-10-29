@@ -1,5 +1,5 @@
 # =============================================================================
-# R script: PCA and PCoA with Overlaid Ellipses for Lc, Gv, and LcGv
+# R script: PCoA with Overlaid Ellipses for Lc, Gv, and LcGv
 # =============================================================================
 # 
 # This script:
