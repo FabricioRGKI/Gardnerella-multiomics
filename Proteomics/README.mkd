@@ -22,6 +22,30 @@ Expects three replicates per condition (`_R1`, `_R2`, `_R3`). Usage examples for
 
 ---
 
+# Proteomics Species Relative Abundance
+
+This R script estimates intensity-based relative abundance between two bacterial species in coculture from proteomics CSV data.
+
+It filters the input by species (via `[strain=...]` tag) and unique peptide count, handles missing abundance values (≤ 1 NA per row, half-min imputation), normalizes each replicate by column sum, and sums normalized intensities per species per replicate. Relative abundance is computed as species intensity divided by the summed intensity of both species. Per-species summary statistics and a between-species paired *t*-test (with Cohen's *d*<sub>z</sub>, 95% CI, and exact permutation test) are reported. A split-table variant is included for cases where each species was acquired in separate runs.
+
+## Input
+
+A proteomics CSV file, a coculture condition label, and two species names (single-table workflow); or two species-specific CSV files and a coculture label (split-table workflow).
+
+## Output
+
+Per-replicate, summary, and between-species test CSV files, plus a printed step-by-step summary.
+
+## Requirements
+
+R with `dplyr`, `tidyr`, `stringr`, and `tibble`.
+
+## Note
+
+Expects three replicates per coculture condition (`_R1`, `_R2`, `_R3`). With n = 3, interpret effect sizes and confidence intervals alongside the paired *t*-test. Usage examples for *Lactobacillus crispatus* + *Gardnerella vaginalis*, *Fannyhessea vaginae*, *Lactobacillus iners*, and *Prevotella bivia* are included at the bottom of the relevant script.
+
+___
+
 # Proteomic Shift Index Calculation R Script
 
 This R script processes all CSV files in a folder, parses protein descriptions into separate fields (locus tag, protein, gene, etc.), assigns labels, filters by p-value ≤ 0.05, splits proteins into upregulated (Log2FC > 0) and downregulated (Log2FC < 0), and calculates the Proteomic Shift Index (PSI) for each group.
